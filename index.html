@@ -7,7 +7,7 @@
     <title>Assignment 5 Battleship</title>
     
     <style>
-    /* Borrowed Board and Square ID&CLass from TTT. Updates for 6X5. Added bottom margin for text input */
+    /* Borrowed Board and Square ID&CLass from TTT. Updates for 6X6. */
     #board {
     display: grid;
     grid-template-columns: 17% 17% 17% 17% 17% 17%;
@@ -48,8 +48,22 @@
 
 <body>
     
-    <script>      
-        // Starts with blank 2D arrays for each ship, and a combined 2D array for all ships.
+    <script>
+        // This function checks if one array is a subset of another. This function draws upon sharing from this resource and google: https://www.youtube.com/watch?v=1PffgLBGHWs#:~:text=How%20do%20you%20check%20if%20one%20array,use%20the%20Lodash%20_.difference%20method%20(Lodash%20is
+        function isSubset(subset, superset) {
+            return subset.every(element => superset.includes(element));
+            }
+        
+        // These variables will be used to track and share if a specific ship has been sunk or not. 
+        let ship1sunk = false; 
+        let ship1MessageSent = false; 
+        let ship2sunk = false; 
+        let ship2MessageSent = false; 
+        let ship3sunk = false; 
+        let ship3MessageSent = false; 
+
+    
+        // Starts with blank arrays for each ship, user guesses, and a combined array for all ships.
         let ship1Size4Location = [];
         let ship2Size3Location = [];
         let ship3Size2Location = [];
@@ -57,39 +71,41 @@
         let currentGuesses = [];
 
         // Information from the JSON file will be extracted into the following 4 pieces of info: x,y, size and orientation
-        //The placeShips function takes those four pieces, runs a calculation to asses the index numbers of the ship and adds indexes to a individualShipLocation array (indivShipLocation) and combinedShips Array (allShipsLocation).
-        function placeShips(x_coordinate,y_coordinate,size,orientation,indivShipLocation, allShipsLocation){
+        //The placeShips function takes those four pieces of information, runs a calculation to asses the index numbers of the ship and adds indexes to a individualShipLocation array (indivShipLocation) and combinedShips Array (allShipsLocation).
+
+        function placeShips(xCoordinate,yCoordinate,size,orientation,indivShipLocation, allShipsLocation){
             // If orientation is horizontal, the following calculating marks an X for each consecutive spot, starting from the ships first X,Y axis.
             if (orientation=="horizontal"){
                 for (i=0; i<size; i++){
                     let singleArrayPositionToAdd = 0;
-                    
-                    singleArrayPositionToAdd = (y_coordinate-1)*6+(x_coordinate-1)+i;
+                    singleArrayPositionToAdd = (yCoordinate-1)*6+(xCoordinate-1)+i;
                     indivShipLocation.push(singleArrayPositionToAdd);
                     allShipsLocation.push(singleArrayPositionToAdd);
                 }
-                indivShipLocation.sort();
-                allShipsLocation.sort();
             }
         
             // If orientation is vertical, the calculation on where to add X's is the same, except rather than increasing by 1, an increase of 6 happens.
             if (orientation=="vertical"){
                 for (i=0; i<size; i++){
                     let singleArrayPositionToAdd = 0;
-                    singleArrayPositionToAdd = (y_coordinate-1)*6+(x_coordinate-1)+i*6;
+                    singleArrayPositionToAdd = (yCoordinate-1)*6+(xCoordinate-1)+i*6;
                     indivShipLocation.push(singleArrayPositionToAdd);
                     allShipsLocation.push(singleArrayPositionToAdd);
                 }
-                indivShipLocation.sort();
-                allShipsLocation.sort();
             }
+            indivShipLocation.sort();
+            allShipsLocation.sort();
         }
 
-        // The data within the battleship.json file is fetched.
-        fetch('battleship.json')
-            .then(res => res.text())
-            .then(response => 
-                {
+        // Hardcoding for practice while on VSCode. External JSON file blocked on VSCode but could be aceesed when uploaded to Github.
+        placeShips(2,3,4,"vertical",ship1Size4Location, allShipsLocation);
+        placeShips(3,3,3,"horizontal",ship2Size3Location, allShipsLocation);
+        placeShips(6,5,2,"vertical",ship3Size2Location, allShipsLocation);
+
+            // The data within the battleship.json file is fetched.
+            fetch('battleship.json')
+                .then(res => res.text())
+                .then(response => {
                     console.log("Response:" + response);
                     const respObj = JSON.parse(response);
                     // Once parsed I create a variable for each bit of key inforamtion for the three ships. These are then plugged in below when the placeShips method is called.
@@ -111,12 +127,10 @@
                     placeShips(s1x,s1y,s1Size,s1Orientation,ship1Size4Location, allShipsLocation);
                     placeShips(s2x,s2y,s2Size,s2Orientation,ship2Size3Location, allShipsLocation);
                     placeShips(s3x,s3y,s3Size,s3Orientation,ship3Size2Location, allShipsLocation);
-
-                }
-            )
+                })
             .catch(error=> console.log(error))
 
-
+        // Variables for tracking number of guesses, hits (win Condition), and size of board.
         let numOfGuesses = 0;
         let hits = 0;
         const numSquares = 36;
@@ -138,35 +152,56 @@
         for(let i = 0; i < squares.length; i++){
             // Pulls out each object one by one based upon the id (sq0-sq35)
             const square = document.getElementById("sq"+i);
-            // If click occurs, X  will be added to single object of squares array and message will be displayed.
+            // If click occurs, currentGuess index will be added to currentGuesses array and num of Guesses will increase.
             square.addEventListener("click", function(){
                 // Prevents multiple clicks on the same square
                 if(currentGuesses.includes(i)){
                     return;
                 }
-
                 currentGuesses.push(i);
                 numOfGuesses++;
 
-                // Adds text content for clicked square into variable. If that variables is blank, and equal to 1 adds X. Blank and equal to 0 will add an O. Player_var is changed in order to change the turn from X to O.
+                // Checks the allShipsLocation (answerkey for the ships location). If the current i is included, the hits tracker will increase, and red class will be added for that square/id. 
                 if (allShipsLocation.includes(i)){
                     hits++;
                     square.classList.add("redclass");
-                    square.textContent = "X";
-                    alert("Hit!"+ hits)
+                    alert("Hit! # "+ hits)
                 }
                 else{
                     square.classList.add("greyclass");
                     alert("Miss!")
                 }
+
+                // This section uses the isSubset function to check if that ships location is contained within the current guesses array.
+                // If it is a Subset, Float Status will return as true. 
+                let s1FloatStatus = isSubset(ship1Size4Location, currentGuesses) 
+                let s2FloatStatus = isSubset(ship2Size3Location, currentGuesses) 
+                let s3FloatStatus = isSubset(ship3Size2Location, currentGuesses) 
+                // alert(x)
+
+                // If floatstatus (above) for a boat is true, and it has not yet been sunk (shipsunk variable), a message will appear and the shipsunk variable will be changed to true.
+                if ((s1FloatStatus == true) && (ship1sunk == false)){
+                    alert("You sunk one of my ships!")
+                    ship1sunk = true;
+                }
+
+                if ((s2FloatStatus == true) && (ship2sunk == false)){
+                    alert("You sunk one of my ships!")
+                    ship2sunk = true;
+                }
+
+                if ((s3FloatStatus == true) && (ship3sunk == false)){
+                    alert("You sunk one of my ships!")
+                    ship3sunk = true;
+                }
     
-                // When sameLetterSameIndexArr length hits five, that means the correct word has been found and the user is notified they have won.
+                // When the number of hits matches the length of the allShipsLocation array, that means the user has effectively sunk all ships and they are notified accordingly. 
                 if (hits == allShipsLocation.length){
                     alert("You've sunk my batleship! Wait, actually you sank them all. Congrats!");
                     return;
                     }
 
-                //If the row counter is equal to 30 or above. An alert appears that the game has ended.
+                //If the num of Guesses is equal to 20 or above. An alert appears that the game has ended.
                 if (numOfGuesses>=20){
                     alert ("You've run out of ammunition and guesses. Try again next time.");
                     return;
@@ -174,8 +209,6 @@
             });
 
         }
-
-
     }        
     </script>
 

@@ -49,18 +49,27 @@
 <body>
     
     <script>      
+        // The data within the battleship.json file is fetched.
         fetch('battleship.json')
             .then(res => res.text())
             .then(response => 
                 {
                     console.log("Response:" + response);
                     respObj = JSON.parse(response);
-                    s1x = respObj.ships[0].coords[0]
-                    s1y = respObj.ships[0].coords[0]
-                    s1Size = respObj.ships[0].size
-                    s1Orientation = respObj.ships[0].orientation
-                    
-                    s="Results" + s1x + s1y + s1Size + s1Orientation;
+                    // Once parsed I create a variable for each bit of key inforamtion for the three ships. These are then plugged in below when the placeShips method is called.
+                    let s1x = respObj.ships[0].coords[0]
+                    let s1y = respObj.ships[0].coords[1]
+                    let s1Size = respObj.ships[0].size
+                    let s1Orientation = respObj.ships[0].orientation
+                    let s2x = respObj.ships[1].coords[0]
+                    let s2y = respObj.ships[1].coords[1]
+                    let s2Size = respObj.ships[1].size
+                    let s2Orientation = respObj.ships[1].orientation
+                    let s3x = respObj.ships[2].coords[0]
+                    let s3y = respObj.ships[2].coords[1]
+                    let s3Size = respObj.ships[2].size
+                    let s3Orientation = respObj.ships[2].orientation                    
+                    // s="Results" + s1x + s1y + s1Size + s1Orientation;
                     document.getElementById("placeholder").innerHTML = s
                 }
             )
@@ -107,9 +116,9 @@
             }
         }
 
-        placeShips(2,3,4,"vertical",ship1Size4Location, allShipsLocation);
-        placeShips(3,3,3,"horizontal",ship2Size3Location, allShipsLocation);
-        placeShips(6,5,2,"vertical",ship3Size2Location, allShipsLocation);
+        placeShips(s1x,s1y,s1Size,s1Orientation,ship1Size4Location, allShipsLocation);
+        placeShips(s2x,s2y,s2Size,s2Orientation,ship2Size3Location, allShipsLocation);
+        placeShips(s3x,s3y,s3Size,s3Orientation,ship3Size2Location, allShipsLocation);
 
         let numOfGuesses = 0;
         let hits = 0;

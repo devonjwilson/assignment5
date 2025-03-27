@@ -48,51 +48,19 @@
 
 <body>
     
-    <script>
-        // <!-- Note - my Google Browser CORS Policy was blocking the the import of a local JSON file. So brought it in here. -->
-        // const shipsJson = {
-        //     'ships': 
-        //     [
-        //         {
-        //         'name': 'ship1',
-        //         'orientation': 'vertical',
-        //         'size': 4,
-        //         'coords':[2,3]
-        //         },	
-        //         {
-        //         'name':'ship2',
-        //         'orientation': 'horizontal',
-        //         'size': 3,
-        //         'coords':[3,3]
-        //         },
-        //         {
-        //         'name':'ship3',
-        //         'orientation': 'vertical',
-        //         'size': 2,
-        //         'coords':[6,5]
-        //         }
-        //     ]
-        // }
-
-        // respObj = shipsJson.parse(response)
-        // s="Results" + respObj.ships[0]
-        // document.getElementById("placeholder").innerHTML = s
-        // Attempt 1
-        // fetch('battleship.json')
-        //     .then(response => response.json())
-        //     .then(data=> {
-        //         console.log(data);
-        //     })
-        //     .catch(error=> console.log('Error:', error));
-              
-        // Attempt 2    
+    <script>      
         fetch('battleship.json')
             .then(res => res.text())
             .then(response => 
                 {
                     console.log("Response:" + response);
                     respObj = JSON.parse(response);
-                    s="Results" + respObj.ships[0].name;
+                    s1x = ships[0].coords[0]
+                    s1y = ships[0].coords[0]
+                    s1Size = ships[0].size
+                    s1Orientation = ships[0].orientation
+                    
+                    s="Results" + s1x + s1y + s1Size + s1Orientation;
                     document.getElementById("placeholder").innerHTML = s
                 }
             )

@@ -55,10 +55,10 @@
                 {
                     console.log("Response:" + response);
                     respObj = JSON.parse(response);
-                    s1x = ships[0].coords[0]
-                    s1y = ships[0].coords[0]
-                    s1Size = ships[0].size
-                    s1Orientation = ships[0].orientation
+                    s1x = respObj.ships[0].coords[0]
+                    s1y = respObj.ships[0].coords[0]
+                    s1Size = respObj.ships[0].size
+                    s1Orientation = respObj.ships[0].orientation
                     
                     s="Results" + s1x + s1y + s1Size + s1Orientation;
                     document.getElementById("placeholder").innerHTML = s

@@ -78,12 +78,12 @@
         // s="Results" + respObj.ships[0]
         // document.getElementById("placeholder").innerHTML = s
         // Attempt 1
-        // fetch('battleship.json')
-        //     .then(response => response.json())
-        //     .then(data=> {
-        //         console.log(data);
-        //     })
-        //     .catch(error=> console.log('Error:', error));
+        fetch('battleship.json')
+            .then(response => response.json())
+            .then(data=> {
+                console.log(data);
+            })
+            .catch(error=> console.log('Error:', error));
               
         // Attempt 2    
         // alert(respObj);

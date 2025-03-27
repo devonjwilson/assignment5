@@ -56,7 +56,8 @@
         let allShipsLocation =  [];
         let currentGuesses = [];
 
-
+        // Information from the JSON file will be extracted into the following 4 pieces of info: x,y, size and orientation
+        //The placeShips function takes those four pieces, runs a calculation to asses the index numbers of the ship and adds indexes to a individualShipLocation array (indivShipLocation) and combinedShips Array (allShipsLocation).
         function placeShips(x_coordinate,y_coordinate,size,orientation,indivShipLocation, allShipsLocation){
             // If orientation is horizontal, the following calculating marks an X for each consecutive spot, starting from the ships first X,Y axis.
             if (orientation=="horizontal"){

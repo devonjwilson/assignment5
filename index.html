@@ -61,7 +61,6 @@
         let ship2MessageSent = false; 
         let ship3sunk = false; 
         let ship3MessageSent = false; 
-
     
         // Starts with blank arrays for each ship, user guesses, and a combined array for all ships.
         let ship1Size4Location = [];
@@ -98,9 +97,9 @@
         }
 
         // Hardcoding for practice while on VSCode. External JSON file blocked on VSCode but could be aceesed when uploaded to Github.
-        placeShips(2,3,4,"vertical",ship1Size4Location, allShipsLocation);
-        placeShips(3,3,3,"horizontal",ship2Size3Location, allShipsLocation);
-        placeShips(6,5,2,"vertical",ship3Size2Location, allShipsLocation);
+        // placeShips(2,3,4,"vertical",ship1Size4Location, allShipsLocation);
+        // placeShips(3,3,3,"horizontal",ship2Size3Location, allShipsLocation);
+        // placeShips(6,5,2,"vertical",ship3Size2Location, allShipsLocation);
 
             // The data within the battleship.json file is fetched.
             fetch('battleship.json')
@@ -161,7 +160,7 @@
                 currentGuesses.push(i);
                 numOfGuesses++;
 
-                // Checks the allShipsLocation (answerkey for the ships location). If the current i is included, the hits tracker will increase, and red class will be added for that square/id. 
+                // Checks the allShipsLocation (answerkey for the ships location). If the current i is included, the hits tracker will increase, and red class will be added for that square's class. 
                 if (allShipsLocation.includes(i)){
                     hits++;
                     square.classList.add("redclass");
@@ -177,7 +176,6 @@
                 let s1FloatStatus = isSubset(ship1Size4Location, currentGuesses) 
                 let s2FloatStatus = isSubset(ship2Size3Location, currentGuesses) 
                 let s3FloatStatus = isSubset(ship3Size2Location, currentGuesses) 
-                // alert(x)
 
                 // If floatstatus (above) for a boat is true, and it has not yet been sunk (shipsunk variable), a message will appear and the shipsunk variable will be changed to true.
                 if ((s1FloatStatus == true) && (ship1sunk == false)){
@@ -207,7 +205,6 @@
                     return;
                     }
             });
-
         }
     }        
     </script>

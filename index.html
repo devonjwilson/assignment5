@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assignment 5 Battleship</title>
+    
+    <style>
+    /* Borrowed Board and Square ID&CLass from TTT. Updates for 6X5. Added bottom margin for text input */
+    #board {
+    display: grid;
+    grid-template-columns: 17% 17% 17% 17% 17% 17%;
+    grid-template-rows: 17% 17% 17% 17% 17% 17%;
+    max-width: 600px;
+    margin-bottom: 100px;
+  }
+
+    .square{
+    border: 2px solid rgb(192,192,192);
+    border-radius: 5px;
+    width: 100px;
+    height: 100px;
+    display: flex;
+    justify-content: center; 
+    margin:1px;
+    font-size:80px;
+    }  
+
+    .square:hover {
+    background: lightgrey;
+    }
+
+    /* Two classes that will be used for updating tile colors based upon guesses */
+    .redclass {
+    background-color: red;
+    }
+
+    .greyclass {
+    background-color: lightgrey;
+    }
+    
+    h1 {
+    text-align:left; color:blue
+    }
+    </style>
+    </head>
+
+<body>
+    
+    <script>
+        // <!-- Note - my Google Browser CORS Policy was blocking the the import of a local JSON file. So brought it in here. -->
+        // const shipsJson = {
+        //     'ships': 
+        //     [
+        //         {
+        //         'name': 'ship1',
+        //         'orientation': 'vertical',
+        //         'size': 4,
+        //         'coords':[2,3]
+        //         },	
+        //         {
+        //         'name':'ship2',
+        //         'orientation': 'horizontal',
+        //         'size': 3,
+        //         'coords':[3,3]
+        //         },
+        //         {
+        //         'name':'ship3',
+        //         'orientation': 'vertical',
+        //         'size': 2,
+        //         'coords':[6,5]
+        //         }
+        //     ]
+        // }
+
+        // respObj = shipsJson.parse(response)
+        // s="Results" + respObj.ships[0]
+        // document.getElementById("placeholder").innerHTML = s
+        // Attempt 1
+        // fetch('battleship.json')
+        //     .then(response => response.json())
+        //     .then(data=> {
+        //         console.log(data);
+        //     })
+        //     .catch(error=> console.log('Error:', error));
+              
+        // Attempt 2    
+        // alert(respObj);
+        // fetch('battleship.json')
+        //     .then(res => res.text())
+        //     .then(response => 
+        //         {
+        //             respObj = JSON.parse(response)
+        //             s="Results" + respObj.ships[0]
+        //             document.getElementById("placeholder").innerHTML = s
+        //         }
+        //     )
+        //     .catch(error=> console.log(error))
+        // // alert(respObj);
+
+
+        // Starts with blank 2D arrays for each ship, and a combined 2D array for all ships.
+        let ship1Size4Location = [];
+        let ship2Size3Location = [];
+        let ship3Size2Location = [];
+        let allShipsLocation =  [];
+        let currentGuesses = [];
+
+        // Information from the JSON file will be extracted into the following 4 pieces of information x,y, size and orientation
+        // X_Coordinate-1 indicates the column of the ship. Y_Coordinate-1 indicates the row of the ship. 
+        // x_coordinate=2
+        // y_coordinate=3
+        // size=4
+        // orientation="horizontal"
+
+        function placeShips(x_coordinate,y_coordinate,size,orientation,indivShipLocation, allShipsLocation){
+            // If orientation is horizontal, the following calculating marks an X for each consecutive spot, starting from the ships first X,Y axis.
+            if (orientation=="horizontal"){
+                for (i=0; i<size; i++){
+                    let singleArrayPositionToAdd = 0;
+                    
+                    singleArrayPositionToAdd = (y_coordinate-1)*6+(x_coordinate-1)+i;
+                    indivShipLocation.push(singleArrayPositionToAdd);
+                    allShipsLocation.push(singleArrayPositionToAdd);
+                }
+                indivShipLocation.sort();
+                allShipsLocation.sort();
+            }
+        
+            // If orientation is vertical, the calculation on where to add X's is the same, except rather than increasing by 1, an increase of 6 happens.
+            if (orientation=="vertical"){
+                for (i=0; i<size; i++){
+                    let singleArrayPositionToAdd = 0;
+                    singleArrayPositionToAdd = (y_coordinate-1)*6+(x_coordinate-1)+i*6;
+                    indivShipLocation.push(singleArrayPositionToAdd);
+                    allShipsLocation.push(singleArrayPositionToAdd);
+                }
+                indivShipLocation.sort();
+                allShipsLocation.sort();
+            }
+        }
+
+        placeShips(2,3,4,"vertical",ship1Size4Location, allShipsLocation);
+        placeShips(3,3,3,"horizontal",ship2Size3Location, allShipsLocation);
+        placeShips(6,5,2,"vertical",ship3Size2Location, allShipsLocation);
+
+        let numOfGuesses = 0;
+        let hits = 0;
+        const numSquares = 36;
+
+        window.onload= function(){
+        // Create a central board, and append divs to the board. 
+        const board = document.getElementById("board");
+        for (i=0; i<numSquares; i++){
+                    const square = document.createElement( "div");
+                    square.classList.add("square");
+                    square.id = "sq"+i;
+                    board.append(square);
+                } 
+
+        // Creates a squares array including each individual square of the board.
+        const squares = document.getElementsByClassName("square");
+
+        // Pulled logic from TTT, updating values, based upon Click Event Listener
+        for(let i = 0; i < squares.length; i++){
+            // Pulls out each object one by one based upon the id (sq0-sq35)
+            const square = document.getElementById("sq"+i);
+            // If click occurs, X  will be added to single object of squares array and message will be displayed.
+            square.addEventListener("click", function(){
+                // Prevents multiple clicks on the same square
+                if(currentGuesses.includes(i)){
+                    return;
+                }
+
+                currentGuesses.push(i);
+                numOfGuesses++;
+
+                // Adds text content for clicked square into variable. If that variables is blank, and equal to 1 adds X. Blank and equal to 0 will add an O. Player_var is changed in order to change the turn from X to O.
+                if (allShipsLocation.includes(i)){
+                    hits++;
+                    square.classList.add("redclass");
+                    square.textContent = "X";
+                    alert("Hit!"+ hits)
+                }
+                else{
+                    square.classList.add("greyclass");
+                    alert("Miss!")
+                }
+    
+                // When sameLetterSameIndexArr length hits five, that means the correct word has been found and the user is notified they have won.
+                if (hits == allShipsLocation.length){
+                    alert("You've sunk my batleship! Wait, actually you sank them all. Congrats!");
+                    return;
+                    }
+
+                //If the row counter is equal to 30 or above. An alert appears that the game has ended.
+                if (numOfGuesses>=20){
+                    alert ("You've run out of ammunition and guesses. Try again next time.");
+                    return;
+                    }
+            });
+
+        }
+
+
+    }        
+    </script>
+
+    <h1>Battleship</h1>
+    <p></p>
+    <div id="placeholder"></div>
+    <div id="board"></div>
+</body>
+</html>
